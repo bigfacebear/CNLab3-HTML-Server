@@ -34,15 +34,21 @@ void *clientProcess(void* args) {
 
         if (byte_num > 0) {
             std::cout << rcv_msg << std::endl;
-        }
 
-        Request request(rcv_msg, byte_num);
-        if (request.METHOD == "GET") {
-            std::string res;
-            response.responseGET(request.PATH, res);
-            send(cli->sock, res.c_str(), res.length(), 0);
-            std::cout << "***************" << std::endl;
-            std::cout << res << std::endl;
+            Request request(rcv_msg, byte_num);
+            if (request.METHOD == "GET") {
+                std::string res;
+                response.responseGET(request.PATH, res);
+                send(cli->sock, res.c_str(), res.length(), 0);
+                std::cout << "***************" << std::endl;
+            }
+
+            if (request.METHOD == "POST") {
+                std::string res;
+                response.responsePOST(request, res);
+                send(cli->sock, res.c_str(), res.length(), 0);
+                std::cout << "***************" << std::endl;
+            }
         }
 
     }
@@ -63,11 +69,11 @@ int main(int argc, const char *argv[]) {
 
     struct sockaddr_in serv_addr;
     bzero((char*)&serv_addr, sizeof(serv_addr));
-    int portno = 2489;
+    int portno = 2490;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(portno);
-    if (bind(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+    if (::bind(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
         std::cout << "bind failed" << std::endl;
         return 1;
     }
